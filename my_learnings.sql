@@ -39,12 +39,6 @@ show create table products;
 
 
 
-
--- Find the number of orders placed by each customer and identify the customers with the highest order frequency.
--- Identify products that are frequently out of stock or have low stock levels.
-
-
-
 -- Retrieve the top 10 customers based on their total purchase amount.
 select c.customerNumber, c.customerName, total_ordered_amount from customers c join (
 	select o.customerNumber, 
@@ -97,10 +91,30 @@ order by avg_payment_amount desc;
 -- Calculate the revenue share of each product line in the total sales revenue.
 select 
 od.orderLineNumber,
-sum(od.quantityOrdered * od.priceEach) as total_sales_revenue
+((sum(od.quantityOrdered * od.priceEach) / (select sum(os.quantityOrdered * os.priceEach) from orderdetails os)) * 100) as order_line_basis_share_in_revenue
 from orderdetails od
 group by od.orderLineNumber
-order by revenueOnProduct desc;
+order by order_line_basis_share_in_revenue desc;
 
-select * from products where productLine = 'Classic Cars';
-select * from orderdetails;
+-- Find the number of orders placed by each customer and identify the customers with the highest order frequency.
+select 
+customerNumber, 
+count(*) as no_of_orders_placed 
+from 
+orders group by customerNumber
+order by no_of_orders_placed 
+desc limit 10; 
+
+
+
+-- Customer Lifetime Value (CLV): Calculate the CLV for each customer, considering their total historical purchases and any additional factors you deem relevant.
+-- Product Cohort Analysis: Perform a cohort analysis to understand the purchasing behavior of customers over time, grouping them based on their first purchase date and analyzing their subsequent purchases.
+-- Sales Funnel Analysis: Analyze the sales funnel by tracking the conversion rates at each stage of the purchasing process (e.g., from viewing a product to completing a purchase).
+-- Market Basket Analysis: Identify frequently co-purchased products to uncover patterns and associations among products bought together.
+-- Time Series Forecasting: Use historical sales data to forecast future sales for each product or customer segment, employing techniques such as moving averages or exponential smoothing.
+-- Customer Segmentation: Segment customers into distinct groups based on their purchasing behavior, demographics, or other characteristics, and analyze the characteristics and behaviors of each segment.
+-- Churn Prediction: Build a model to predict customer churn based on factors such as order frequency, recency, and monetary value, using historical data to train and validate the model.
+-- Geospatial Analysis: Analyze sales data spatially to identify regions with high or low sales volumes, and explore potential correlations with demographic or economic factors.
+-- Cross-Selling and Upselling Recommendations: Develop recommendations for cross-selling or upselling based on customer purchase history and product relationships.
+-- Dynamic Pricing Strategy: Implement a dynamic pricing strategy based on factors such as demand, seasonality, and competitor pricing, and analyze its impact on sales and revenue.
+
